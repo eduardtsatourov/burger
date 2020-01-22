@@ -14,7 +14,11 @@ const burger = (props) => {
       return <BurgerIngredient key={ingName + i} type={ingName}/>
     })
   })
-  console.log(outPut)
+  
+  if (outPut.filter((el) => el.length !== 0).length === 0) {
+    outPut = <p>Please Start Adding ingredients</p>
+  };
+  
   return (
     <div className={classes.Burger}>
       <BurgerIngredient type="bread-top"/>
