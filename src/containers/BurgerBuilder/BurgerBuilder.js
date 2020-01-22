@@ -73,7 +73,7 @@ class BurgerBuilder extends Component {
   }
 
   purchaseContinue = () => {
-    
+
   }
 
   render() {
@@ -85,7 +85,8 @@ class BurgerBuilder extends Component {
           <OrderSummary
             ingredients={this.state.ingredients}
             cancel={this.purchaseCancelHandler}
-            accept={this.purchaseContinue}/>
+            accept={this.purchaseContinue}
+            price={this.state.totalPrice}/>
         </Modal>
         <Burger ingredients={this.state.ingredients} />
         <BuildControls
