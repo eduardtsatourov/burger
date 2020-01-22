@@ -7,8 +7,6 @@ const burger = (props) => {
   let outPut = null;
   let ing = Object.keys(props.ingredients);
 
-  console.log(props.ingredients)
-
   outPut = ing.map((ingName) => {
     return [...Array(props.ingredients[ingName])].map((_, i) => {
       return <BurgerIngredient key={ingName + i} type={ingName}/>
