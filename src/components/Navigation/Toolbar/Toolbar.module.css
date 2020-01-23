@@ -20,9 +20,25 @@
 .Logo {
   height: 80%;
 }
+.HideMenu {
+  height: 100%;
+  box-sizing: border-box;
+  display: none;
+  padding: 15px 20px 0 ;
+  cursor: pointer;
+  border-Bottom: 4px solid transparent;
+}
 
+.HideMenu:hover {
+  border-Bottom: 4px solid #40A4C8;
+  background-color: rgb(83, 44, 6);
+  color: white;
+}
 @media (max-width: 499px) {
   .hideNav {
     display: none;
+  }
+  .HideMenu {
+    display: block;
   }
 }
