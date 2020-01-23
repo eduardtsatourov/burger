@@ -24,7 +24,8 @@ const orderSummary = (props) => {
           CANCEL</Button>
       <Button
         btnType="Success"
-        clicked={props.accept}>
+        clicked={props.accept}
+        showSpinner={props.show}>
           CONTINUE</Button>
     </Aux>
   )

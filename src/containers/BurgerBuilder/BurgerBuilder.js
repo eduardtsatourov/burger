@@ -2,8 +2,10 @@ import React, { Component } from "react";
 import Aux from "../../hoc/AuxHoc";
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
-import Modal from '../../components/UI/Modal/Modal';
-import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
+import Modal from "../../components/UI/Modal/Modal";
+import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
+import Spinner from '../../components/UI/Spinner/Spinner';
+import axios from "../../axios-orders";
 
 const INGREDIENT_PRICES = {
   salad: 0.5,
@@ -22,7 +24,8 @@ class BurgerBuilder extends Component {
     },
     totalPrice: 4,
     purchasable: false,
-    purchasing: false
+    purchasing: false,
+    loading: false
   };
 
   addIngredientHandler = type => {
@@ -35,7 +38,12 @@ class BurgerBuilder extends Component {
       [type]: updatedCount
     };
 
-    let purchasingEnabled = Object.keys(updatedIngredients).reduce((arr, el) => {return arr + updatedIngredients[el]}, 0) <= 0 ? false : true;
+    let purchasingEnabled =
+      Object.keys(updatedIngredients).reduce((arr, el) => {
+        return arr + updatedIngredients[el];
+      }, 0) <= 0
+        ? false
+        : true;
     this.setState({
       ...this.state,
       ingredients: updatedIngredients,
@@ -54,8 +62,13 @@ class BurgerBuilder extends Component {
       ...this.state.ingredients,
       [type]: updatedCount
     };
-    
-    let purchasingEnabled = Object.keys(updatedIngredients).reduce((arr, el) => {return arr + updatedIngredients[el]}, 0) <= 0 ? false : true;
+
+    let purchasingEnabled =
+      Object.keys(updatedIngredients).reduce((arr, el) => {
+        return arr + updatedIngredients[el];
+      }, 0) <= 0
+        ? false
+        : true;
     this.setState({
       ...this.state,
       ingredients: updatedIngredients,
@@ -65,29 +78,60 @@ class BurgerBuilder extends Component {
   };
 
   purchaseHandler = () => {
-    this.setState({purchasing: true})
-  }
+    this.setState({ purchasing: true });
+  };
 
   purchaseCancelHandler = () => {
-    this.setState({purchasing: false})
-  }
+    this.setState({ purchasing: false });
+  };
 
   purchaseContinue = () => {
+    this.setState({
+      ...this.state,
+      loading: true
+    })
+    const order = {
+      ingredients: this.state.ingredients,
+      price: this.state.totalPrice
+    };
 
-  }
+    axios
+      .post("/orders.json", order)
+      .then(
+        (resp) => {console.log(resp)
+        this.setState({
+          ...this.state,
+          loading: false,
+          purchasing: false
+        })})
+      .catch(
+        err =>{ console.log(err)
+        this.setState({
+          ...this.state,
+          loading: false,
+          purchasing: false
+        })
+        });
+  };
 
   render() {
+    const OrderSummaryOrSpinner = this.state.loading ? (
+      <Spinner />
+    ) : (
+      <OrderSummary
+        ingredients={this.state.ingredients}
+        cancel={this.purchaseCancelHandler}
+        accept={this.purchaseContinue}
+        price={this.state.totalPrice}
+      />
+    );
     return (
       <Aux>
         <Modal
           show={this.state.purchasing}
-          click={this.purchaseCancelHandler}>
-          <OrderSummary
-            ingredients={this.state.ingredients}
-            cancel={this.purchaseCancelHandler}
-            accept={this.purchaseContinue}
-            price={this.state.totalPrice}/>
-        </Modal>
+          click={this.purchaseCancelHandler}
+        >{OrderSummaryOrSpinner}</Modal>
+
         <Burger ingredients={this.state.ingredients} />
         <BuildControls
           price={this.state.totalPrice}
