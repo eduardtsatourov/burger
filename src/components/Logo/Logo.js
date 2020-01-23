@@ -4,8 +4,8 @@ import classes from './Logo.module.css';
 
 const logo = () => {
   return (
-    <div className={classes.Logo} alt="logo">
-      <img src={burgerLogo}/>
+    <div className={classes.Logo}>
+      <img src={burgerLogo} alt="logo"/>
     </div>
   )
 }
