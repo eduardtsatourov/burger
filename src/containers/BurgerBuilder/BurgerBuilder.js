@@ -4,7 +4,7 @@ import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
 import Modal from "../../components/UI/Modal/Modal";
 import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
-import Spinner from '../../components/UI/Spinner/Spinner';
+import Spinner from "../../components/UI/Spinner/Spinner";
 import axios from "../../axios-orders";
 
 const INGREDIENT_PRICES = {
@@ -15,18 +15,34 @@ const INGREDIENT_PRICES = {
 };
 
 class BurgerBuilder extends Component {
-  state = {
-    ingredients: {
-      salad: 0,
-      bacon: 0,
-      cheese: 0,
-      meat: 0
-    },
-    totalPrice: 4,
-    purchasable: false,
-    purchasing: false,
-    loading: false
-  };
+  constructor() {
+    super();
+    this.state = {
+      ingredients: null,
+      totalPrice: 4,
+      purchasable: false,
+      purchasing: false,
+      loading: false
+    };
+    this.getIngredientsAndPrice()
+
+  }
+  getIngredientsAndPrice = () => {
+    axios
+      .get("/burgerStart.json")
+      .then(resp => {
+        console.log(resp);
+        this.setState({
+          ...this.state,
+          ingredients: resp.data.ingredients,
+          totalPrice: resp.data.startPrice,
+          purchasable: false
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
 
   addIngredientHandler = type => {
     const oldCount = this.state.ingredients[type];
@@ -89,7 +105,7 @@ class BurgerBuilder extends Component {
     this.setState({
       ...this.state,
       loading: true
-    })
+    });
     const order = {
       ingredients: this.state.ingredients,
       price: this.state.totalPrice
@@ -97,50 +113,64 @@ class BurgerBuilder extends Component {
 
     axios
       .post("/orders.json", order)
-      .then(
-        (resp) => {console.log(resp)
+      .then(resp => {
+        console.log(resp);
         this.setState({
           ...this.state,
           loading: false,
           purchasing: false
-        })})
-      .catch(
-        err =>{ console.log(err)
-        this.setState({
-          ...this.state,
-          loading: false,
-          purchasing: false
-        })
         });
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({
+          ...this.state,
+          loading: false,
+          purchasing: false
+        });
+      });
   };
 
+  clearIngState = () => {
+    this.getIngredientsAndPrice()
+  }
+
   render() {
-    const OrderSummaryOrSpinner = this.state.loading ? (
-      <Spinner />
-    ) : (
-      <OrderSummary
-        ingredients={this.state.ingredients}
-        cancel={this.purchaseCancelHandler}
-        accept={this.purchaseContinue}
-        price={this.state.totalPrice}
-      />
-    );
+    const OrderSummaryOrSpinner =
+      this.state.loading || this.state.ingredients === null ? (
+        <Spinner />
+      ) : (
+        <OrderSummary
+          ingredients={this.state.ingredients}
+          cancel={this.purchaseCancelHandler}
+          accept={this.purchaseContinue}
+          price={this.state.totalPrice}
+        />
+      );
     return (
       <Aux>
-        <Modal
-          show={this.state.purchasing}
-          click={this.purchaseCancelHandler}
-        >{OrderSummaryOrSpinner}</Modal>
+        <Modal show={this.state.purchasing} click={this.purchaseCancelHandler}>
+          {OrderSummaryOrSpinner}
+        </Modal>
 
-        <Burger ingredients={this.state.ingredients} />
-        <BuildControls
-          price={this.state.totalPrice}
-          ingredientAdded={this.addIngredientHandler}
-          ingredientRemoved={this.removeIngredientHandler}
-          ings={this.state.ingredients}
-          orderDisabled={!this.state.purchasable}
-          purchasing={this.purchaseHandler}
-        />
+        {this.state.ingredients ? (
+          <Aux>
+            <Burger ingredients={this.state.ingredients} />
+            <BuildControls
+              price={this.state.totalPrice}
+              ingredientAdded={this.addIngredientHandler}
+              ingredientRemoved={this.removeIngredientHandler}
+              ings={this.state.ingredients}
+              orderDisabled={!this.state.purchasable}
+              purchasing={this.purchaseHandler}
+              clear={this.clearIngState}
+            />
+          </Aux>
+        ) : <Aux>
+              <p style={{textAlign: "center"}}>Please try again later, it looks like the server is sleeping...</p>
+              <Spinner />
+            </Aux>
+            }
       </Aux>
     );
   }
