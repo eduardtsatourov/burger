@@ -1,0 +1,7 @@
+.Checkout {
+  width: 400px;
+  height: 400px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+}
