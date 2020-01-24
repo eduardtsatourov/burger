@@ -22,7 +22,8 @@ class BurgerBuilder extends Component {
       totalPrice: 4,
       purchasable: false,
       purchasing: false,
-      loading: false
+      loading: false,
+      error: null
     };
     this.getIngredientsAndPrice()
 
@@ -31,7 +32,6 @@ class BurgerBuilder extends Component {
     axios
       .get("/burgerStart.json")
       .then(resp => {
-        console.log(resp);
         this.setState({
           ...this.state,
           ingredients: resp.data.ingredients,
@@ -41,6 +41,10 @@ class BurgerBuilder extends Component {
       })
       .catch(err => {
         console.log(err);
+        this.setState({
+          ...this.state,
+          error: err
+        });
       });
   }
 
